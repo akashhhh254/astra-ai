@@ -40,6 +40,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.compose.material.icons.automirrored.filled.Chat
 import com.example.data.repository.AstraRepository
 import com.example.ui.auth.AuthScreen
 import com.example.ui.auth.onGoogleSignInClicked
@@ -55,6 +56,7 @@ import com.example.ui.splash.SplashScreen
 import com.example.ui.welcome.WelcomeScreen
 import com.example.ui.writing.WritingToolsScreen
 import com.google.firebase.Firebase
+import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import java.net.URLDecoder
@@ -62,7 +64,7 @@ import java.net.URLEncoder
 
 sealed class Screen(val route: String, val baseRoute: String, val label: String, val icon: ImageVector) {
     data object Home : Screen("home", "home", "Home", Icons.Default.Home)
-    data object Chat : Screen("chat?prompt={prompt}&convId={convId}", "chat", "Chat", Icons.Default.Chat)
+    data object Chat : Screen("chat?prompt={prompt}&convId={convId}", "chat", "Chat", Icons.AutoMirrored.Filled.Chat)
     data object Tools : Screen("tools?tool={tool}", "tools", "Tools", Icons.Default.AutoAwesome)
     data object History : Screen("history", "history", "History", Icons.Default.History)
     data object Profile : Screen("profile", "profile", "Profile", Icons.Default.Person)
@@ -84,23 +86,42 @@ val bottomNavItems = listOf(
 
 @Composable
 fun AppNavigation() {
+    val context = LocalContext.current
+    if (FirebaseApp.getApps(context).isEmpty()) {
+        try {
+            FirebaseApp.initializeApp(context)
+        } catch (_: Exception) {}
+    }
+
     var showSplash by remember { mutableStateOf(true) }
-    var currentUser by remember { mutableStateOf(Firebase.auth.currentUser) }
+    var currentUser by remember {
+        mutableStateOf(
+            try {
+                if (FirebaseApp.getApps(context).isNotEmpty()) Firebase.auth.currentUser else null
+            } catch (_: Exception) {
+                null
+            }
+        )
+    }
     var showAuthScreen by remember { mutableStateOf(false) }
     var authInitialTab by remember { mutableStateOf(0) }
 
-    val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val credentialManager = remember { CredentialManager.create(context) }
     val repository = remember { AstraRepository(context) }
 
     DisposableEffect(Unit) {
-        val listener = FirebaseAuth.AuthStateListener { auth ->
-            currentUser = auth.currentUser
+        val auth = try {
+            if (FirebaseApp.getApps(context).isNotEmpty()) Firebase.auth else null
+        } catch (_: Exception) {
+            null
         }
-        Firebase.auth.addAuthStateListener(listener)
+        val listener = FirebaseAuth.AuthStateListener { currentAuth ->
+            currentUser = currentAuth.currentUser
+        }
+        auth?.addAuthStateListener(listener)
         onDispose {
-            Firebase.auth.removeAuthStateListener(listener)
+            auth?.removeAuthStateListener(listener)
         }
     }
 
@@ -349,19 +370,31 @@ fun MainScaffold(currentUserId: String) {
 
                 // Sub-destinations
                 composable(Screen.ImageStudio.route) {
-                    ImageStudioScreen(currentUserId = currentUserId)
+                    ImageStudioScreen(
+                        currentUserId = currentUserId,
+                        onBack = { navController.popBackStack() }
+                    )
                 }
 
                 composable(Screen.Scanner.route) {
-                    ScannerScreen(currentUserId = currentUserId)
+                    ScannerScreen(
+                        currentUserId = currentUserId,
+                        onBack = { navController.popBackStack() }
+                    )
                 }
 
                 composable(Screen.DocAnalyzer.route) {
-                    DocAnalyzerScreen(currentUserId = currentUserId)
+                    DocAnalyzerScreen(
+                        currentUserId = currentUserId,
+                        onBack = { navController.popBackStack() }
+                    )
                 }
 
                 composable(Screen.ResumeBuilder.route) {
-                    ResumeBuilderScreen(currentUserId = currentUserId)
+                    ResumeBuilderScreen(
+                        currentUserId = currentUserId,
+                        onBack = { navController.popBackStack() }
+                    )
                 }
             }
         }

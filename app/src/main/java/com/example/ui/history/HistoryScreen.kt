@@ -21,8 +21,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.ChatBubbleOutline
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
@@ -407,7 +407,7 @@ private fun MonochromeConversationCard(
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = if (isPinned) Icons.Default.PushPin else Icons.Default.Chat,
+                    imageVector = if (isPinned) Icons.Default.PushPin else Icons.AutoMirrored.Filled.Chat,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.size(16.dp)

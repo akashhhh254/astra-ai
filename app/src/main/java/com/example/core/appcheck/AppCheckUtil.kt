@@ -20,6 +20,10 @@ fun configureAppCheck(context: Context, intent: Intent?) {
         if (FirebaseApp.getApps(context).isEmpty()) {
             FirebaseApp.initializeApp(context)
         }
+        if (FirebaseApp.getApps(context).isEmpty()) {
+            Log.e(TAG, "FirebaseApp is not initialized. App Check setup deferred.")
+            return
+        }
 
         if (BuildConfig.DEBUG) {
             val debugToken = intent?.getStringExtra(DEBUG_TOKEN_EXTRA)
@@ -31,7 +35,7 @@ fun configureAppCheck(context: Context, intent: Intent?) {
                 )
                 prefs.edit()
                     .putString(DEBUG_SECRET_KEY, debugToken)
-                    .apply()
+                    .commit()
                 Log.d(TAG, "App Check debug secret configured successfully.")
             } else {
                 Log.w(TAG, "No debug token found in Intent extra.")

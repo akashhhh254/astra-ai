@@ -28,7 +28,7 @@ class AstraRepository(private val db: FirebaseFirestore) {
         )
     )
 
-    private val auth = Firebase.auth
+    private val auth get() = Firebase.auth
 
     fun requireUserId(): String {
         return auth.currentUser?.uid

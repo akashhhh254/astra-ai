@@ -19,11 +19,11 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Initialize Theme & User Preferences
-        AstraPreferences.init(this)
-
         // Configure App Check with launch intent before any UI or Firebase operations
         configureAppCheck(this, intent)
+
+        // Initialize Theme & User Preferences
+        AstraPreferences.init(this)
 
         // Enable Edge to Edge
         enableEdgeToEdge()

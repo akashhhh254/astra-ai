@@ -32,7 +32,7 @@ import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Functions
-import androidx.compose.material.icons.filled.MenuBook
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Spellcheck
@@ -98,7 +98,7 @@ fun WritingToolsScreen(
     val allTools = listOf(
         WritingToolItem("email", "Email Writer", "Writing", Icons.Default.Email, "e.g. Requesting a 15-minute sync with investor regarding seed round..."),
         WritingToolItem("essay", "Essay & Speech", "Writing", Icons.Default.Description, "e.g. The impact of decentralized machine learning in medicine..."),
-        WritingToolItem("blog", "Blog Generator", "Writing", Icons.Default.MenuBook, "e.g. 5 minimalist design practices for high performance mobile apps..."),
+        WritingToolItem("blog", "Blog Generator", "Writing", Icons.AutoMirrored.Filled.MenuBook, "e.g. 5 minimalist design practices for high performance mobile apps..."),
         WritingToolItem("caption", "Viral Captions", "Writing", Icons.Default.Share, "e.g. Introducing Astra AI Monochrome Edition..."),
         WritingToolItem("grammar", "Grammar Polisher", "Writing", Icons.Default.Spellcheck, "e.g. Paste draft text to improve precision and clarity..."),
         WritingToolItem("code", "Code Assistant", "Code", Icons.Default.Code, "e.g. Write a thread-safe Kotlin cache with mutex and expiration time..."),
