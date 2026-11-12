@@ -35,12 +35,12 @@ import androidx.compose.material.icons.filled.Image as ImageIcon
 import androidx.compose.material.icons.filled.Psychology
 import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.School
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -73,6 +73,7 @@ import com.google.firebase.auth.auth
 fun DashboardScreen(
     currentUserId: String,
     onNavigateToChat: (initialPrompt: String?) -> Unit,
+    onNavigateToSearch: (initialQuery: String?) -> Unit = {},
     onNavigateToImage: () -> Unit,
     onNavigateToDoc: () -> Unit,
     onNavigateToScanner: () -> Unit,
@@ -93,17 +94,15 @@ fun DashboardScreen(
 
     val suggestedPrompts = remember {
         listOf(
+            "Who is Rohit Sharma?",
             "Explain quantum computing in 3 bullets",
             "Write an executive summary of this proposal",
             "Draft a clean Kotlin coroutines flow sample",
-            "Generate flashcards for system design patterns",
             "Translate my message to Spanish with nuance"
         )
     }
 
     val totalRequests = usageStat?.totalRequests ?: 0L
-    val freeLimit = 2L
-    val quotaProgress = (totalRequests.toFloat() / freeLimit.toFloat()).coerceIn(0f, 1f)
 
     Column(
         modifier = Modifier
@@ -139,7 +138,7 @@ fun DashboardScreen(
                         color = MaterialTheme.colorScheme.onBackground
                     )
                     Text(
-                        text = "Your Intelligence. Your Universe.",
+                        text = "Love With AkaX ❤",
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Normal,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -256,27 +255,58 @@ fun DashboardScreen(
                         fontWeight = FontWeight.Medium
                     )
 
-                    // Send Button (White on dark, Black on light)
-                    IconButton(
-                        onClick = {
-                            if (promptInput.isNotBlank()) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Web Search Button
+                        IconButton(
+                            onClick = {
                                 val query = promptInput
                                 promptInput = ""
-                                onNavigateToChat(query)
-                            }
-                        },
-                        modifier = Modifier
-                            .size(38.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.primary)
-                            .testTag("universal_prompt_send_button")
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.Send,
-                            contentDescription = "Send",
-                            tint = MaterialTheme.colorScheme.onPrimary,
-                            modifier = Modifier.size(16.dp)
-                        )
+                                onNavigateToSearch(query.ifBlank { null })
+                            },
+                            modifier = Modifier
+                                .size(38.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.surface)
+                                .border(1.dp, MaterialTheme.colorScheme.outline, CircleShape)
+                                .testTag("universal_prompt_search_button")
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = "Web Search",
+                                tint = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+
+                        // Send Button (White on dark, Black on light)
+                        IconButton(
+                            onClick = {
+                                if (promptInput.isNotBlank()) {
+                                    val query = promptInput
+                                    promptInput = ""
+                                    if (query.startsWith("Who is", ignoreCase = true) || query.contains("search", ignoreCase = true)) {
+                                        onNavigateToSearch(query)
+                                    } else {
+                                        onNavigateToChat(query)
+                                    }
+                                }
+                            },
+                            modifier = Modifier
+                                .size(38.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.primary)
+                                .testTag("universal_prompt_send_button")
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.Send,
+                                contentDescription = "Send",
+                                tint = MaterialTheme.colorScheme.onPrimary,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
                     }
                 }
             }
@@ -294,14 +324,20 @@ fun DashboardScreen(
                     shape = RoundedCornerShape(20.dp),
                     color = MaterialTheme.colorScheme.surfaceVariant,
                     border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-                    modifier = Modifier.clickable { onNavigateToChat(prompt) }
+                    modifier = Modifier.clickable {
+                        if (prompt.startsWith("Who is", ignoreCase = true)) {
+                            onNavigateToSearch(prompt)
+                        } else {
+                            onNavigateToChat(prompt)
+                        }
+                    }
                 ) {
                     Row(
                         modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
-                            imageVector = Icons.Default.AutoAwesome,
+                            imageVector = if (prompt.startsWith("Who is")) Icons.Default.Search else Icons.Default.AutoAwesome,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.size(13.dp)
@@ -335,39 +371,35 @@ fun DashboardScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            modifier = Modifier
+                                .size(8.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.onSurface)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "ASTRA Engine • Active",
+                            color = MaterialTheme.colorScheme.onSurface,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 13.sp
+                        )
+                    }
                     Text(
-                        text = "Free AI Quota",
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 13.sp
-                    )
-                    Text(
-                        text = "${totalRequests.coerceAtMost(freeLimit)} of $freeLimit free requests used",
+                        text = "$totalRequests interactions logged",
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = 12.sp
                     )
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(6.dp))
 
-                LinearProgressIndicator(
-                    progress = { quotaProgress },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(4.dp)
-                        .clip(RoundedCornerShape(2.dp)),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    trackColor = MaterialTheme.colorScheme.outline
+                Text(
+                    text = "Unlimited intelligence • Real-time search, vision OCR & smart creation",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontSize = 11.sp
                 )
-
-                if (totalRequests >= freeLimit) {
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Text(
-                        text = "Usage limit reached. Upgrade to Pro for unlimited AI intelligence.",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontSize = 11.sp
-                    )
-                }
             }
         }
 

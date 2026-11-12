@@ -598,20 +598,6 @@ private fun sendMessage(
             return@launch
         }
 
-        // Check two-free-request quota
-        val canRequest = repository.canPerformRequest(userId)
-        if (!canRequest) {
-            repository.addMessage(convId, "user", prompt.ifBlank { "[Attached Image]" })
-            repository.addMessage(
-                convId,
-                "model",
-                "You have reached your 2 free AI requests limit on this plan. Please manage your account or upgrade for unlimited queries."
-            )
-            setIsGenerating(false)
-            onFinish()
-            return@launch
-        }
-
         // Save User Message
         repository.addMessage(convId, "user", prompt.ifBlank { "[Attached Image]" })
         repository.incrementUsage(userId)

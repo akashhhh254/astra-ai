@@ -272,13 +272,6 @@ fun DocAnalyzerScreen(
 
                             scope.launch {
                                 try {
-                                    val canRequest = repository.canPerformRequest(currentUserId)
-                                    if (!canRequest) {
-                                        analysisResult = "Usage limit reached: You have used your 2 free AI requests. Please upgrade for unlimited requests."
-                                        isAnalyzing = false
-                                        return@launch
-                                    }
-
                                     val result = aiClient.analyzeDocument(documentText, selectedMode)
                                     repository.incrementUsage(currentUserId)
                                     analysisResult = result

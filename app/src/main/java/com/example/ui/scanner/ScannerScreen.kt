@@ -320,13 +320,6 @@ fun ScannerScreen(
 
                             scope.launch {
                                 try {
-                                    val canRequest = repository.canPerformRequest(currentUserId)
-                                    if (!canRequest) {
-                                        scanResult = "Usage limit reached: You have used your 2 free AI requests. Please upgrade for unlimited requests."
-                                        isScanning = false
-                                        return@launch
-                                    }
-
                                     val prompt = when (selectedTask) {
                                         "solve_math" -> "Extract the problem shown in this image and solve it step-by-step with clear answers: $customQuery"
                                         "summarize_board" -> "Transcribe the handwritten whiteboard notes in this image and provide a clean organized summary: $customQuery"

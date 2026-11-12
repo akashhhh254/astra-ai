@@ -154,13 +154,6 @@ fun ResumeBuilderScreen(
 
                             scope.launch {
                                 try {
-                                    val canRequest = repository.canPerformRequest(currentUserId)
-                                    if (!canRequest) {
-                                        generatedResume = "Usage limit reached: You have used your 2 free AI requests. Please upgrade for unlimited requests."
-                                        isGenerating = false
-                                        return@launch
-                                    }
-
                                     val result = aiClient.generateResumeContent(
                                         fullName = fullName.trim(),
                                         targetRole = targetRole.trim(),

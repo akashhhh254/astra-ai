@@ -271,7 +271,8 @@ class AstraRepository(private val db: FirebaseFirestore) {
     }
 
     suspend fun canPerformRequest(userId: String): Boolean {
-        return getUsageCount(userId) < 2L
+        // Unrestricted access - artificial 2-free limit removed completely
+        return true
     }
 
     suspend fun incrementUsage(userId: String) {

@@ -271,19 +271,35 @@ fun ProfileScreen(
                 Column(modifier = Modifier.padding(vertical = 4.dp)) {
                     MonochromeSettingRow(
                         icon = Icons.Default.Tune,
-                        title = "Personalization",
+                        title = "Personalization & Style",
                         subtitle = "${personalization.language} • ${personalization.responseTone} • ${personalization.responseLength}",
                         onClick = { showPersonalizationDialog = true }
                     )
                     MonochromeSettingRow(
                         icon = Icons.Default.Psychology,
-                        title = "AI Model Engine",
-                        subtitle = "Gemini 3.8 Flash (Official Firebase AI)",
-                        onClick = {}
+                        title = "AI Thinking Depth",
+                        subtitle = "Current: ${personalization.thinkingLevel} reasoning depth",
+                        onClick = { showPersonalizationDialog = true }
+                    )
+                    MonochromeSettingRow(
+                        icon = Icons.Default.Language,
+                        title = "Web Grounding Engine",
+                        subtitle = if (personalization.webSearchEnabled) "Enabled (Wikipedia + DuckDuckGo)" else "Disabled (Offline knowledge only)",
+                        onClick = {
+                            val next = !personalization.webSearchEnabled
+                            AstraPreferences.updatePersonalization(
+                                context = context,
+                                language = personalization.language,
+                                responseTone = personalization.responseTone,
+                                responseLength = personalization.responseLength,
+                                webSearchEnabled = next
+                            )
+                            Toast.makeText(context, if (next) "Web search enabled" else "Web search disabled", Toast.LENGTH_SHORT).show()
+                        }
                     )
                     MonochromeSettingRow(
                         icon = Icons.Default.Security,
-                        title = "Privacy Policy",
+                        title = "Privacy & Cloud Firestore",
                         subtitle = "Zero-trust encrypted database",
                         onClick = { showPrivacyDialog = true }
                     )
@@ -295,8 +311,8 @@ fun ProfileScreen(
                     )
                     MonochromeSettingRow(
                         icon = Icons.Default.Info,
-                        title = "About Astra AI",
-                        subtitle = "Version 2.0 • Monochrome Edition",
+                        title = "About ASTRA AI",
+                        subtitle = "Love With AkaX ❤ • v2.0 Enterprise",
                         onClick = { showAboutDialog = true }
                     )
                 }
@@ -363,7 +379,7 @@ fun ProfileScreen(
                 title = { Text("About ASTRA AI", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold) },
                 text = {
                     Text(
-                        text = "ASTRA AI is an AI Super App engineered with native Kotlin, Jetpack Compose, and Google's flagship Gemini 3.8 Flash model. Redesigned with a minimalist Black & White design system.\n\nTagline: Your Intelligence. Your Universe.",
+                        text = "ASTRA AI — Production AI Super App\nTagline: Love With AkaX ❤\n\nEngineered with native Kotlin, Jetpack Compose, Google Gemini 3.8 Flash, multi-source grounded web search (Wikipedia + DuckDuckGo), full OCR, and Cloud Firestore persistence.\n\nAll restrictions removed — enjoy limitless intelligence.",
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = 13.sp,
                         lineHeight = 18.sp

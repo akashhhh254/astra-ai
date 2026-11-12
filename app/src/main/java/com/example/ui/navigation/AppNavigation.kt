@@ -62,15 +62,26 @@ import com.google.firebase.auth.auth
 import java.net.URLDecoder
 import java.net.URLEncoder
 
+import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.Search
+import com.example.ui.create.CreateHubScreen
+import com.example.ui.library.LibraryScreen
+import com.example.ui.search.SearchScreen
+import com.example.ui.video.VideoStudioScreen
+
 sealed class Screen(val route: String, val baseRoute: String, val label: String, val icon: ImageVector) {
     data object Home : Screen("home", "home", "Home", Icons.Default.Home)
     data object Chat : Screen("chat?prompt={prompt}&convId={convId}", "chat", "Chat", Icons.AutoMirrored.Filled.Chat)
-    data object Tools : Screen("tools?tool={tool}", "tools", "Tools", Icons.Default.AutoAwesome)
-    data object History : Screen("history", "history", "History", Icons.Default.History)
-    data object Profile : Screen("profile", "profile", "Profile", Icons.Default.Person)
+    data object Search : Screen("search?q={q}", "search", "Search", Icons.Default.Search)
+    data object Create : Screen("create", "create", "Create", Icons.Default.AutoAwesome)
+    data object Library : Screen("library", "library", "Library", Icons.Default.Bookmark)
+    data object Profile : Screen("profile", "profile", "Settings", Icons.Default.Person)
 
     // Sub-screens
-    data object ImageStudio : Screen("image_studio", "image_studio", "Create", Icons.Default.AutoAwesome)
+    data object Tools : Screen("tools?tool={tool}", "tools", "Tools", Icons.Default.AutoAwesome)
+    data object History : Screen("history", "history", "History", Icons.Default.History)
+    data object ImageStudio : Screen("image_studio", "image_studio", "Image Studio", Icons.Default.AutoAwesome)
+    data object VideoStudio : Screen("video_studio", "video_studio", "Video Studio", Icons.Default.AutoAwesome)
     data object Scanner : Screen("scanner", "scanner", "Scanner", Icons.Default.AutoAwesome)
     data object DocAnalyzer : Screen("doc_analyzer", "doc_analyzer", "Doc Analyzer", Icons.Default.AutoAwesome)
     data object ResumeBuilder : Screen("resume_builder", "resume_builder", "Resume", Icons.Default.AutoAwesome)
@@ -79,8 +90,9 @@ sealed class Screen(val route: String, val baseRoute: String, val label: String,
 val bottomNavItems = listOf(
     Screen.Home,
     Screen.Chat,
-    Screen.Tools,
-    Screen.History,
+    Screen.Search,
+    Screen.Create,
+    Screen.Library,
     Screen.Profile
 )
 
@@ -207,6 +219,7 @@ fun MainScaffold(currentUserId: String) {
                             onClick = {
                                 val destinationRoute = when (screen) {
                                     Screen.Chat -> "chat"
+                                    Screen.Search -> "search"
                                     Screen.Tools -> "tools?tool=email"
                                     else -> screen.route
                                 }
@@ -267,6 +280,14 @@ fun MainScaffold(currentUserId: String) {
                                 navController.navigate("chat")
                             }
                         },
+                        onNavigateToSearch = { query ->
+                            if (!query.isNullOrBlank()) {
+                                val encoded = URLEncoder.encode(query, "UTF-8")
+                                navController.navigate("search?q=$encoded")
+                            } else {
+                                navController.navigate("search")
+                            }
+                        },
                         onNavigateToImage = {
                             navController.navigate(Screen.ImageStudio.route)
                         },
@@ -319,7 +340,57 @@ fun MainScaffold(currentUserId: String) {
                     )
                 }
 
-                // 3. Tools
+                // 3. Real-Time Web Search
+                composable(
+                    route = Screen.Search.route,
+                    arguments = listOf(
+                        navArgument("q") {
+                            type = NavType.StringType
+                            nullable = true
+                            defaultValue = null
+                        }
+                    )
+                ) { backStackEntry ->
+                    val encQ = backStackEntry.arguments?.getString("q")
+                    val initialQuery = if (!encQ.isNullOrBlank()) {
+                        try {
+                            URLDecoder.decode(encQ, "UTF-8")
+                        } catch (_: Exception) {
+                            encQ
+                        }
+                    } else null
+
+                    SearchScreen(
+                        currentUserId = currentUserId,
+                        initialQuery = initialQuery,
+                        onBack = { navController.popBackStack() }
+                    )
+                }
+
+                // 4. Creative Studio Hub
+                composable(Screen.Create.route) {
+                    CreateHubScreen(
+                        onNavigateToImage = { navController.navigate(Screen.ImageStudio.route) },
+                        onNavigateToVideo = { navController.navigate(Screen.VideoStudio.route) },
+                        onNavigateToDoc = { navController.navigate(Screen.DocAnalyzer.route) },
+                        onNavigateToScanner = { navController.navigate(Screen.Scanner.route) },
+                        onNavigateToWriting = { navController.navigate("tools?tool=email") },
+                        onNavigateToResume = { navController.navigate(Screen.ResumeBuilder.route) }
+                    )
+                }
+
+                // 5. Library Screen
+                composable(Screen.Library.route) {
+                    LibraryScreen(
+                        currentUserId = currentUserId,
+                        onNavigateToChat = { prompt ->
+                            val encoded = URLEncoder.encode(prompt, "UTF-8")
+                            navController.navigate("chat?prompt=$encoded")
+                        }
+                    )
+                }
+
+                // 6. Tools
                 composable(
                     route = Screen.Tools.route,
                     arguments = listOf(
@@ -337,7 +408,7 @@ fun MainScaffold(currentUserId: String) {
                     )
                 }
 
-                // 4. History Screen
+                // 7. History Screen
                 composable(Screen.History.route) {
                     HistoryScreen(
                         currentUserId = currentUserId,
@@ -356,7 +427,7 @@ fun MainScaffold(currentUserId: String) {
                     )
                 }
 
-                // 5. Profile & Settings
+                // 8. Profile & Settings
                 composable(Screen.Profile.route) {
                     ProfileScreen(
                         currentUserId = currentUserId,
@@ -371,6 +442,13 @@ fun MainScaffold(currentUserId: String) {
                 // Sub-destinations
                 composable(Screen.ImageStudio.route) {
                     ImageStudioScreen(
+                        currentUserId = currentUserId,
+                        onBack = { navController.popBackStack() }
+                    )
+                }
+
+                composable(Screen.VideoStudio.route) {
+                    VideoStudioScreen(
                         currentUserId = currentUserId,
                         onBack = { navController.popBackStack() }
                     )

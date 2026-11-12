@@ -253,16 +253,6 @@ fun ImageStudioScreen(
 
                             scope.launch {
                                 try {
-                                    val canRequest = repository.canPerformRequest(currentUserId)
-                                    if (!canRequest) {
-                                        enhancedPromptResult = Pair(
-                                            "Usage limit reached: You have used your 2 free AI requests. Please upgrade for unlimited requests.",
-                                            "Quota exceeded."
-                                        )
-                                        isGenerating = false
-                                        return@launch
-                                    }
-
                                     val result = aiClient.enhanceImagePrompt(
                                         userPrompt = userPrompt.trim(),
                                         artStyle = selectedStyle,
